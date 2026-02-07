@@ -4,6 +4,7 @@ const ENCRYPTED_DATA = document.getElementById('encrypted-data').textContent;
 const PBKDF2_ITERATIONS = __PBKDF2_ITERATIONS__;
 const SALT_LENGTH = __SALT_LENGTH__;
 const IV_LENGTH = __IV_LENGTH__;
+const STORAGE_KEY = 'pfa_session';
 
 async function deriveKey(password, salt) {
   const encoder = new TextEncoder();
@@ -74,23 +75,25 @@ function getMimeType(filename) {
   return types[ext] || 'application/octet-stream';
 }
 
-document.getElementById('form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
+async function tryDecrypt(password, showError = true) {
   const btn = document.getElementById('btn');
   const btnText = document.getElementById('btn-text');
   const spinner = document.getElementById('spinner');
   const error = document.getElementById('error');
-  const password = document.getElementById('password').value;
 
-  btn.disabled = true;
-  btnText.style.display = 'none';
-  spinner.style.display = 'block';
-  error.style.display = 'none';
+  if (btn) {
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    spinner.style.display = 'block';
+  }
+  if (error) error.style.display = 'none';
 
   try {
     const decrypted = await decrypt(ENCRYPTED_DATA, password);
     const files = JSON.parse(decrypted);
+
+    // Success - store password for next time
+    sessionStorage.setItem(STORAGE_KEY, password);
 
     // Create blob URLs for assets
     const blobUrls = {};
@@ -108,7 +111,6 @@ document.getElementById('form').addEventListener('submit', async (e) => {
 
     // Replace asset paths with blob URLs
     for (const [path, url] of Object.entries(blobUrls)) {
-      // Simple string replacement for common patterns
       html = html.split('./' + path).join(url);
       html = html.split('/' + path).join(url);
       html = html.split('"' + path + '"').join('"' + url + '"');
@@ -118,12 +120,28 @@ document.getElementById('form').addEventListener('submit', async (e) => {
     document.open();
     document.write(html);
     document.close();
+    return true;
 
   } catch (err) {
     console.error('Decryption failed:', err);
-    error.style.display = 'block';
-    btn.disabled = false;
-    btnText.style.display = 'inline';
-    spinner.style.display = 'none';
+    if (showError && error) error.style.display = 'block';
+    if (btn) {
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+    }
+    return false;
   }
+}
+
+// Try cached password on load
+const cachedPassword = sessionStorage.getItem(STORAGE_KEY);
+if (cachedPassword) {
+  tryDecrypt(cachedPassword, false);
+}
+
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = document.getElementById('password').value;
+  await tryDecrypt(password, true);
 });
