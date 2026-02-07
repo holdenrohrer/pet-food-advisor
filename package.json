@@ -1,0 +1,25 @@
+{
+  "name": "pet-food-advisor",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test:p1": "node prototype1.js",
+    "test:p2": "node prototype2.js",
+    "test:p3": "node prototype3.js",
+    "dev": "npx vite",
+    "build": "vite build",
+    "encrypt": "node scripts/encrypt.js",
+    "build:encrypted": "npm run build && npm run encrypt"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.3.0",
+    "@playwright/test": "^1.58.2",
+    "langchain": "^0.3.0",
+    "playwright": "^1.58.2",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

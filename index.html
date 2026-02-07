@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Food Advisor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav-left {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-arrows {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .nav-arrows button {
+      background: white;
+      border: 2px solid #007bff;
+      color: #007bff;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .nav-arrows button:hover:not(:disabled) { background: #007bff; color: white; }
+    .nav-arrows button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .nav-arrows span {
+      color: #666;
+      font-size: 13px;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .btn-delete {
+      background: white;
+      border: 2px solid #dc3545;
+      color: #dc3545;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-delete:hover:not(:disabled) { background: #dc3545; color: white; }
+    .btn-delete:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-retry {
+      background: #e22028;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-retry:hover { background: #c41e24; }
+
+    .toggle-inspector {
+      background: white;
+      border: 2px solid #666;
+      color: #666;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .toggle-inspector:hover, .toggle-inspector.active { background: #666; color: white; }
+
+    .menu {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .menu button {
+      background: white;
+      border: 2px solid #007bff;
+      color: #007bff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .menu button:hover { background: #007bff; color: white; }
+
+    .content {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .main-panel {
+      flex: 1;
+      min-width: 300px;
+      max-width: 700px;
+    }
+
+    .survey-container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .survey-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .survey-type-selection {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .survey-type-btn {
+      flex: 1;
+      min-width: 150px;
+      padding: 16px;
+      background: #f8f9fa;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .survey-type-btn:hover { border-color: #007bff; background: #e3f2fd; }
+    .survey-type-btn h3 { margin-bottom: 8px; color: #333; }
+    .survey-type-btn p { font-size: 13px; color: #666; }
+
+    .question-container { margin-bottom: 20px; }
+
+    .question-text {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .option-btn {
+      background: white;
+      border: 2px solid #007bff;
+      color: #007bff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .option-btn:hover:not(:disabled) { background: #e3f2fd; }
+    .option-btn.selected { background: #007bff; color: white; }
+    .option-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .number-input {
+      padding: 12px 16px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      width: 150px;
+    }
+
+    .number-input:focus { border-color: #007bff; outline: none; }
+
+    .survey-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .survey-nav button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-back {
+      background: white;
+      border: 2px solid #666;
+      color: #666;
+    }
+
+    .btn-back:hover { background: #666; color: white; }
+
+    .btn-next {
+      background: #007bff;
+      border: none;
+      color: white;
+    }
+
+    .btn-next:hover:not(:disabled) { background: #0056b3; }
+    .btn-next:disabled { background: #ccc; cursor: not-allowed; }
+
+    .custom-qa-item {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .custom-qa-item input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .custom-qa-item input:focus { border-color: #007bff; outline: none; }
+
+    .add-qa-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .add-qa-btn:hover { background: #218838; }
+
+    .remove-qa-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      float: right;
+    }
+
+    .extra-prompt-container { margin-top: 16px; }
+
+    .extra-prompt-container label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .extra-prompt-container textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .extra-prompt-container textarea:focus { border-color: #007bff; outline: none; }
+
+    .chat-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .messages {
+      min-height: 200px;
+      max-height: 50vh;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .message.assistant {
+      background: #e3f2fd;
+      border-left: 4px solid #007bff;
+    }
+
+    .message.user {
+      background: #007bff;
+      color: white;
+      margin-left: 20%;
+    }
+
+    .message.system {
+      background: #fff3cd;
+      color: #856404;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .input-row input:focus { border-color: #007bff; outline: none; }
+
+    .input-row button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .input-row button:hover { background: #0056b3; }
+
+    .recommendation {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+
+    .recommendation h4 { color: #333; margin-bottom: 6px; }
+    .recommendation li { color: #28a745; margin: 4px 0 4px 20px; }
+
+    .typing {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .typing span {
+      width: 8px;
+      height: 8px;
+      background: #007bff;
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .inspector-panel {
+      flex: 1;
+      min-width: 300px;
+      max-width: 500px;
+      display: none;
+    }
+
+    .inspector-panel.visible { display: block; }
+
+    .inspector-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .inspector-header button {
+      background: white;
+      border: 2px solid #666;
+      color: #666;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .inspector-header button.active { background: #666; color: white; }
+
+    .inspector-content {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 12px;
+      padding: 16px;
+      border-radius: 8px;
+      max-height: 80vh;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .inspector-content .system { color: #ce9178; }
+    .inspector-content .user { color: #9cdcfe; }
+    .inspector-content .assistant { color: #dcdcaa; }
+    .inspector-content .tool-call { color: #4ec9b0; }
+    .inspector-content .tool-result { color: #6a9955; }
+
+    .survey-summary {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .survey-summary h4 { margin-bottom: 12px; color: #333; }
+
+    .survey-summary .qa-pair {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .survey-summary .qa-pair strong { color: #007bff; }
+
+    .error-state {
+      background: #f8d7da;
+      border: 2px solid #dc3545;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      color: #721c24;
+    }
+
+    .error-state h3 { margin-bottom: 12px; }
+    .error-state pre {
+      background: #fff;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: left;
+      overflow: auto;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .config-section {
+      margin-top: 16px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .config-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .config-row:last-child { margin-bottom: 0; }
+
+    .config-row label {
+      font-weight: 500;
+      color: #333;
+      min-width: 180px;
+    }
+
+    .config-row select, .config-row input[type="number"] {
+      padding: 8px 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .config-row select:focus, .config-row input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .config-row textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .config-row textarea:focus { border-color: #007bff; outline: none; }
+
+    .expand-btn {
+      background: #e3f2fd;
+      border: 1px solid #007bff;
+      color: #007bff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    .expand-btn:hover { background: #007bff; color: white; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-left">
+      <div class="nav-arrows">
+        <button id="prev-btn">&larr;</button>
+        <span id="history-pos">0 / 0</span>
+        <button id="next-btn">&rarr;</button>
+        <button id="delete-btn" class="btn-delete" title="Delete this entry">&times;</button>
+      </div>
+      <button class="toggle-inspector" id="toggle-inspector">Inspector</button>
+    </div>
+    <div class="menu">
+      <button id="btn-p1">Prototype 1 (Simple)</button>
+      <button id="btn-p2">Prototype 2 (RAG)</button>
+      <button id="btn-p3">Prototype 3 (Interactive)</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="main-panel">
+      <div id="main-content">
+        <div class="survey-container">
+          <div class="survey-header">Welcome to Pet Food Advisor</div>
+          <p style="color: #666;">Select a prototype above to begin.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="inspector-panel" id="inspector-panel">
+      <div class="inspector-header">
+        <button class="active" data-view="messages">Messages</button>
+        <button data-view="survey">Survey</button>
+        <button data-view="state">Full State</button>
+      </div>
+      <div class="inspector-content" id="inspector"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ChatOpenAI } from '@langchain/openai';
+    import { HumanMessage, SystemMessage, ToolMessage, AIMessage } from '@langchain/core/messages';
+    import { tool } from '@langchain/core/tools';
+    import { z } from 'zod';
+    import { DATA } from './data.js';
+    import { OPENROUTER_API_KEY, MODEL, BASE_URL, PROMPT_TEXT } from './config.js';
+    import { HEALTH_GOALS_SURVEY, MEDICAL_SURVEY } from './surveys.js';
+
+    // ============================================
+    // GLOBAL CONFIG - persists in RAM across all prototypes
+    // ============================================
+    const COMPANIES = ['Royal Canin', "Hill's", 'Purina', 'Any'];
+    const DEFAULT_FLOWCHART = `Diagnostic Flow Chart for Dogs Gastrointestinal
+CANINE NUTRITIONAL MANAGEMENT
+DECISION TREE
+
+flowchart TB
+    A[EMACIATION, MALNUTRITION ANOREXIA*] --> B{ADULT}
+    A --> C{PUPPY}
+    B --> D[GASTROINTESTINAL]
+    C --> E[RECOVERY]
+
+    F[DIARRHOEA/VOMITING*] --> G{PUPPY}
+    G --> H[GASTROINTESTINAL PUPPY]
+    F --> I{ACUTE EPISODE OR NON-SPECIFIC ORIGIN}
+    I --> J[GASTROINTESTINAL MODERATE CALORIE]
+    I --> K[GASTROINTESTINAL]
+
+    L[CONSTIPATION*] --> M{ADULT}
+    M --> N{CHRONIC CLINICAL SIGNS}
+    N --> O[GASTROINTESTINAL HIGH FIBRE]
+    N --> P[HYPOALLERGENIC]
+
+    Q[NEED FOR FAT RESTRICTION] --> R[GASTROINTESTINAL LOW FAT]
+    S[LIVER DISEASE] --> T[HEPATIC]
+
+Use the flow chart for your decision-making process.`;
+
+    let globalConfig = {
+      company: 'Royal Canin',
+      numRecommendations: 3,
+      customInstructions: `There should be one pro that includes a technical/sciency word.
+Each pro should start with a very short slug like "Good taste: dogs have been seen to prefer this food over others"`,
+      flowchartInstructions: DEFAULT_FLOWCHART
+    };
+
+    // Build full prompt from config components
+    function buildPromptText(includeFlowchart = false) {
+      let prompt = '';
+
+      // Company restriction
+      if (globalConfig.company !== 'Any') {
+        prompt += `Only recommend ${globalConfig.company} foods.\n\n`;
+      }
+
+      // Recommendation count instruction
+      prompt += `Recommend up to ${globalConfig.numRecommendations} relevant foods. Do not recommend any foods which are irrelevant or bad for the animal.\n\n`;
+
+      // Custom instructions
+      if (globalConfig.customInstructions.trim()) {
+        prompt += globalConfig.customInstructions.trim() + '\n\n';
+      }
+
+      // Flowchart (P3 only)
+      if (includeFlowchart && globalConfig.flowchartInstructions.trim()) {
+        prompt += globalConfig.flowchartInstructions.trim();
+      }
+
+      return prompt.trim();
+    }
+
+    // Structured output schema (matches Python's Pydantic models)
+    function getRecommendationSchema() {
+      return z.object({
+        recommendations: z.array(z.object({
+          food_name: z.string().describe('Name of the recommended food'),
+          pros_list: z.array(z.string()).describe('Up to 4 pros, written in plain English. Each pro is less than 15 words'),
+        })).describe(`Array of up to ${globalConfig.numRecommendations} food recommendations`),
+      });
+    }
+
+    // ============================================
+    // MESSAGE LOG HELPERS
+    // ============================================
+    // Readable message format that survives JSON serialization
+    function logMessage(type, content, metadata = {}) {
+      return { type, content, ...metadata, timestamp: Date.now() };
+    }
+
+    function formatMessageForLog(msg) {
+      // Convert LangChain message to readable format
+      if (msg._getType) {
+        const type = msg._getType();
+        if (type === 'human') return logMessage('user', msg.content);
+        if (type === 'system') return logMessage('system', msg.content);
+        if (type === 'ai') {
+          const log = logMessage('assistant', msg.content);
+          if (msg.tool_calls?.length) log.toolCalls = msg.tool_calls;
+          return log;
+        }
+        if (type === 'tool') return logMessage('tool', msg.content, { toolCallId: msg.tool_call_id });
+      }
+      return logMessage('unknown', JSON.stringify(msg));
+    }
+
+    // ============================================
+    // STATE SCHEMA
+    // ============================================
+    // Each history entry is a complete snapshot:
+    // {
+    //   view: 'welcome' | 'survey-type' | 'survey-question' | 'survey-summary' | 'custom-survey' | 'results' | 'p3-config' | 'p3-chat',
+    //   prototype: 1 | 2 | 3 | null,
+    //   messageLog: [...],  // Readable message log for inspector
+    //   timestamp: number
+    // }
+
+    let history = JSON.parse(localStorage.getItem('petFoodHistory') || '[]');
+    let historyIndex = history.length > 0 ? history.length - 1 : -1;
+    let inspectorView = 'messages';
+    let inspectorVisible = false;
+    let isNavigating = false;  // True when rendering from history navigation
+
+    // ============================================
+    // INIT
+    // ============================================
+    function init() {
+      document.getElementById('prev-btn').addEventListener('click', () => navigate(-1));
+      document.getElementById('next-btn').addEventListener('click', () => navigate(1));
+      document.getElementById('delete-btn').addEventListener('click', deleteCurrentEntry);
+      document.getElementById('toggle-inspector').addEventListener('click', toggleInspector);
+
+      document.getElementById('btn-p1').addEventListener('click', () => startPrototype(1));
+      document.getElementById('btn-p2').addEventListener('click', () => startPrototype(2));
+      document.getElementById('btn-p3').addEventListener('click', () => startPrototype(3));
+
+      document.querySelectorAll('.inspector-header button').forEach(btn => {
+        btn.addEventListener('click', () => setInspectorView(btn.dataset.view));
+      });
+
+      updateNav();
+
+      // Render current state if we have history
+      if (historyIndex >= 0) {
+        // On page load, any loading state is stale (the page was reloaded/reopened)
+        isNavigating = true;
+        renderState(history[historyIndex]);
+        isNavigating = false;
+      }
+    }
+
+    // ============================================
+    // HISTORY MANAGEMENT
+    // ============================================
+    function currentState() {
+      return historyIndex >= 0 ? history[historyIndex] : null;
+    }
+
+    function isStaleLoading(state) {
+      // Loading is stale only if we navigated to this state from history
+      return state.apiStatus === 'loading' && isNavigating;
+    }
+
+    // Reconstruct LangChain messages from serialized form
+    function reconstructMessages(serializedMessages) {
+      if (!serializedMessages) return [];
+      return serializedMessages.map(msg => {
+        const msgType = msg._getType?.() || msg.lc_id?.[2] || msg.constructor?.name;
+        if (msgType === 'SystemMessage' || msgType === 'system') {
+          return new SystemMessage(msg.content);
+        } else if (msgType === 'HumanMessage' || msgType === 'human') {
+          return new HumanMessage(msg.content);
+        } else if (msgType === 'ToolMessage' || msgType === 'tool') {
+          return new ToolMessage({ tool_call_id: msg.tool_call_id, content: msg.content });
+        }
+        // AIMessage and others - just return as-is for now
+        return msg;
+      });
+    }
+
+    function retryApiCall(state) {
+      isNavigating = false;  // We're now actively making a call
+
+      // Reconstruct LangChain messages if they were deserialized from localStorage
+      if (state.langchainMessages && !state.langchainMessages[0]?._getType) {
+        state = { ...state, langchainMessages: reconstructMessages(state.langchainMessages) };
+      }
+
+      renderState(state);  // Re-render to show active loading
+
+      // Call the right LangChain function based on prototype
+      if (state.prototype === 1) {
+        runP1(state);
+      } else if (state.prototype === 2) {
+        runP2(state);
+      } else if (state.prototype === 3) {
+        runP3(state);
+      }
+    }
+
+    function saveState(state) {
+      state.timestamp = Date.now();
+
+      if (historyIndex >= 0 && historyIndex < history.length) {
+        // Update current entry
+        history[historyIndex] = state;
+      } else {
+        // Add new entry
+        history.push(state);
+        historyIndex = history.length - 1;
+      }
+
+      localStorage.setItem('petFoodHistory', JSON.stringify(history));
+      updateNav();
+    }
+
+    function pushNewState(state) {
+      state.timestamp = Date.now();
+      history.push(state);
+      historyIndex = history.length - 1;
+      localStorage.setItem('petFoodHistory', JSON.stringify(history));
+      updateNav();
+    }
+
+    function navigate(delta) {
+      const newIndex = historyIndex + delta;
+      if (newIndex < 0 || newIndex >= history.length) return;
+
+      historyIndex = newIndex;
+      updateNav();
+
+      // Mark as navigating so we can detect stale loading states
+      isNavigating = true;
+      renderState(history[historyIndex]);
+      isNavigating = false;
+    }
+
+    function deleteCurrentEntry() {
+      if (history.length === 0) return;
+
+      history.splice(historyIndex, 1);
+
+      if (history.length === 0) {
+        historyIndex = -1;
+        localStorage.setItem('petFoodHistory', JSON.stringify(history));
+        updateNav();
+        document.getElementById('main-content').innerHTML = `
+          <div class="survey-container">
+            <div class="survey-header">Welcome to Pet Food Advisor</div>
+            <p style="color: #666;">Select a prototype above to begin.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (historyIndex >= history.length) {
+        historyIndex = history.length - 1;
+      }
+
+      localStorage.setItem('petFoodHistory', JSON.stringify(history));
+      updateNav();
+      renderState(history[historyIndex]);
+    }
+
+    function updateNav() {
+      const total = history.length;
+      document.getElementById('history-pos').textContent = total > 0 ? `${historyIndex + 1}/${total}` : '0/0';
+      document.getElementById('prev-btn').disabled = historyIndex <= 0;
+      document.getElementById('next-btn').disabled = historyIndex >= total - 1;
+      document.getElementById('delete-btn').disabled = total === 0;
+    }
+
+    // ============================================
+    // STATE RENDERING
+    // ============================================
+    function renderState(state) {
+      if (!state || !state.view) {
+        renderError('Invalid state', state);
+        return;
+      }
+
+      try {
+        switch (state.view) {
+          case 'welcome':
+            renderWelcome();
+            break;
+          case 'survey-type':
+            renderSurveyTypeSelection(state);
+            break;
+          case 'survey-question':
+            renderSurveyQuestion(state);
+            break;
+          case 'survey-summary':
+            renderSurveySummary(state);
+            break;
+          case 'custom-survey':
+            renderCustomSurvey(state);
+            break;
+          case 'results':
+            renderResults(state);
+            break;
+          case 'p3-config':
+            renderP3Config(state);
+            break;
+          case 'p3-chat':
+            renderP3Chat(state);
+            break;
+          default:
+            renderError(`Unknown view: ${state.view}`, state);
+        }
+      } catch (err) {
+        renderError(`Render error: ${err.message}`, state);
+      }
+
+      updateInspector();
+    }
+
+    function renderError(message, state) {
+      document.getElementById('main-content').innerHTML = `
+        <div class="error-state">
+          <h3>Cannot display this state</h3>
+          <p>${message}</p>
+          <pre>${JSON.stringify(state, null, 2)}</pre>
+        </div>
+      `;
+    }
+
+    function renderWelcome() {
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Welcome to Pet Food Advisor</div>
+          <p style="color: #666;">Select a prototype above to begin.</p>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // PROTOTYPE START
+    // ============================================
+    function startPrototype(num) {
+      if (num === 3) {
+        startP3();
+      } else {
+        const state = {
+          view: 'survey-type',
+          prototype: num,
+          surveyType: null,
+          surveyState: { step: 0, answers: {}, animalType: null },
+          customQA: [{ question: '', answer: '' }],
+          extraPrompt: PROMPT_TEXT,
+          messages: []
+        };
+        pushNewState(state);
+        renderState(state);
+      }
+    }
+
+    // ============================================
+    // SURVEY TYPE SELECTION
+    // ============================================
+    function renderSurveyTypeSelection(state) {
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Prototype ${state.prototype} - Select Survey Type</div>
+          <div class="survey-type-selection">
+            <div class="survey-type-btn" data-type="health">
+              <h3>Health Goals</h3>
+              <p>General wellness survey</p>
+            </div>
+            <div class="survey-type-btn" data-type="medical">
+              <h3>Medical Condition</h3>
+              <p>For diagnosed conditions</p>
+            </div>
+            <div class="survey-type-btn" data-type="custom">
+              <h3>Custom</h3>
+              <p>Build your own Q&A</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll('.survey-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.type;
+          const newState = {
+            ...state,
+            surveyType: type,
+            view: type === 'custom' ? 'custom-survey' : 'survey-question'
+          };
+          saveState(newState);
+          renderState(newState);
+        });
+      });
+    }
+
+    // ============================================
+    // SURVEY QUESTIONS
+    // ============================================
+    function getCurrentQuestion(state) {
+      const survey = state.surveyType === 'health' ? HEALTH_GOALS_SURVEY : MEDICAL_SURVEY;
+      const ss = state.surveyState;
+
+      if (ss.step === 0) {
+        return { id: 'animalType', ...survey.animalType };
+      }
+
+      const animal = ss.animalType?.toLowerCase();
+
+      if (state.surveyType === 'health') {
+        const baseQuestions = animal === 'cat' ? survey.catBase : survey.dogBase;
+
+        if (ss.step <= baseQuestions.length) {
+          return baseQuestions[ss.step - 1];
+        }
+
+        if (ss.step === baseQuestions.length + 1) {
+          return { id: 'healthGoals', ...survey.healthGoals };
+        }
+
+        const selectedGoals = ss.answers.healthGoals || [];
+        const followups = animal === 'cat' ? survey.catFollowups : survey.dogFollowups;
+        const followupIndex = ss.step - baseQuestions.length - 2;
+
+        if (followupIndex < selectedGoals.length) {
+          const goal = selectedGoals[followupIndex];
+          if (followups[goal]) {
+            return { id: `followup_${goal}`, ...followups[goal] };
+          }
+        }
+
+        return null;
+
+      } else if (state.surveyType === 'medical') {
+        if (ss.step === 1) {
+          return { id: 'weight', ...survey.weight };
+        }
+
+        if (ss.step === 2) {
+          return { id: 'condition', ...(animal === 'cat' ? survey.catConditions : survey.dogConditions) };
+        }
+
+        const condition = ss.answers.condition?.[0];
+        const followups = animal === 'cat' ? survey.catFollowups : survey.dogFollowups;
+        const conditionFollowups = followups[condition] || [];
+        const followupIndex = ss.step - 3;
+
+        if (followupIndex < conditionFollowups.length) {
+          return conditionFollowups[followupIndex];
+        }
+
+        return null;
+      }
+
+      return null;
+    }
+
+    function renderSurveyQuestion(state) {
+      const question = getCurrentQuestion(state);
+
+      if (!question) {
+        // Survey complete, go to summary
+        const newState = { ...state, view: 'survey-summary' };
+        saveState(newState);
+        renderState(newState);
+        return;
+      }
+
+      const ss = state.surveyState;
+      let optionsHtml = '';
+
+      if (question.type === 'number') {
+        optionsHtml = `
+          <input type="number" class="number-input" id="weight-input"
+                 min="${question.min}" max="${question.max}"
+                 value="${ss.answers[question.id] || ''}"
+                 placeholder="Enter weight">
+          <span style="margin-left: 8px; color: #666;">lbs</span>
+        `;
+      } else {
+        const selected = ss.answers[question.id] || [];
+        optionsHtml = `<div class="options-grid">
+          ${question.options.map(opt => `
+            <button class="option-btn ${selected.includes(opt) ? 'selected' : ''}"
+                    data-option="${opt}" data-max="${question.maxSelect}">
+              ${opt}
+            </button>
+          `).join('')}
+        </div>`;
+      }
+
+      const canGoNext = question.type === 'number'
+        ? ss.answers[question.id] > 0
+        : (ss.answers[question.id]?.length > 0);
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Prototype ${state.prototype} - ${state.surveyType === 'health' ? 'Health Goals' : 'Medical'} Survey</div>
+          <div class="question-container">
+            <div class="question-text">${question.question}</div>
+            ${optionsHtml}
+          </div>
+          <div class="survey-nav">
+            ${ss.step > 0 ? '<button class="btn-back" id="btn-back">Back</button>' : ''}
+            <button class="btn-next" id="btn-next" ${canGoNext ? '' : 'disabled'}>Next</button>
+          </div>
+        </div>
+      `;
+
+      // Bind events
+      const questionId = question.id;
+      const maxSelect = question.maxSelect;
+
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const option = btn.dataset.option;
+          let selected = [...(ss.answers[questionId] || [])];
+
+          if (selected.includes(option)) {
+            selected = selected.filter(o => o !== option);
+          } else {
+            if (maxSelect === 1) {
+              selected = [option];
+            } else if (selected.length < maxSelect) {
+              selected.push(option);
+            }
+          }
+
+          const newState = {
+            ...state,
+            surveyState: {
+              ...ss,
+              answers: { ...ss.answers, [questionId]: selected },
+              animalType: questionId === 'animalType' ? option : ss.animalType
+            }
+          };
+
+          // Auto-advance on single-select
+          if (maxSelect === 1 && selected.length === 1) {
+            newState.surveyState.step = ss.step + 1;
+          }
+
+          saveState(newState);
+          renderState(newState);
+        });
+      });
+
+      document.getElementById('btn-back')?.addEventListener('click', () => {
+        if (ss.step > 0) {
+          const newState = {
+            ...state,
+            surveyState: { ...ss, step: ss.step - 1 }
+          };
+          saveState(newState);
+          renderState(newState);
+        }
+      });
+
+      document.getElementById('btn-next')?.addEventListener('click', () => {
+        const newState = {
+          ...state,
+          surveyState: { ...ss, step: ss.step + 1 }
+        };
+        saveState(newState);
+        renderState(newState);
+      });
+
+      document.getElementById('weight-input')?.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value) || 0;
+        const newState = {
+          ...state,
+          surveyState: { ...ss, answers: { ...ss.answers, weight: val } }
+        };
+        saveState(newState);
+        document.getElementById('btn-next').disabled = val <= 0;
+      });
+    }
+
+    // ============================================
+    // CUSTOM SURVEY
+    // ============================================
+    function renderConfigSection() {
+      return `
+        <div class="config-section">
+          <div class="config-row">
+            <label>Company:</label>
+            <select id="config-company">
+              ${COMPANIES.map(c => `<option value="${c}" ${globalConfig.company === c ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="config-row">
+            <label>Number of recommendations:</label>
+            <input type="number" id="config-num" min="1" max="10" value="${globalConfig.numRecommendations}">
+          </div>
+          <div class="config-row" style="flex-direction: column; align-items: stretch;">
+            <label>Custom Instructions:</label>
+            <textarea id="config-instructions" rows="4">${globalConfig.customInstructions}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function bindConfigEvents() {
+      document.getElementById('config-company')?.addEventListener('change', (e) => {
+        globalConfig.company = e.target.value;
+      });
+      document.getElementById('config-num')?.addEventListener('change', (e) => {
+        globalConfig.numRecommendations = Math.max(1, Math.min(10, parseInt(e.target.value) || 3));
+      });
+      document.getElementById('config-instructions')?.addEventListener('input', (e) => {
+        globalConfig.customInstructions = e.target.value;
+      });
+      document.getElementById('config-flowchart')?.addEventListener('input', (e) => {
+        globalConfig.flowchartInstructions = e.target.value;
+      });
+    }
+
+    function renderCustomSurvey(state) {
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Prototype ${state.prototype} - Custom Survey</div>
+          <p style="margin-bottom: 16px; color: #666;">Add your own question/answer pairs:</p>
+          <div id="custom-qa-list">
+            ${state.customQA.map((qa, i) => `
+              <div class="custom-qa-item">
+                ${state.customQA.length > 1 ? `<button class="remove-qa-btn" data-index="${i}">Remove</button>` : ''}
+                <input type="text" placeholder="Question" value="${qa.question}" data-index="${i}" data-field="question">
+                <input type="text" placeholder="Answer" value="${qa.answer}" data-index="${i}" data-field="answer">
+              </div>
+            `).join('')}
+          </div>
+          <button class="add-qa-btn" id="add-qa">+ Add Question</button>
+
+          ${renderConfigSection()}
+
+          <div class="survey-nav">
+            <button class="btn-back" id="btn-back">Back</button>
+            <button class="btn-next" id="btn-submit">Get Recommendations</button>
+          </div>
+        </div>
+      `;
+
+      bindConfigEvents();
+
+      // Helper to read current values from DOM
+      function getCurrentQA() {
+        const items = document.querySelectorAll('.custom-qa-item');
+        return Array.from(items).map(item => ({
+          question: item.querySelector('input[data-field="question"]').value,
+          answer: item.querySelector('input[data-field="answer"]').value
+        }));
+      }
+
+      document.getElementById('add-qa').addEventListener('click', () => {
+        const currentQA = getCurrentQA();
+        const newState = {
+          ...state,
+          customQA: [...currentQA, { question: '', answer: '' }]
+        };
+        saveState(newState);
+        renderState(newState);
+      });
+
+      document.querySelectorAll('.remove-qa-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const currentQA = getCurrentQA();
+          const idx = parseInt(btn.dataset.index);
+          const newQA = currentQA.filter((_, i) => i !== idx);
+          const newState = { ...state, customQA: newQA };
+          saveState(newState);
+          renderState(newState);
+        });
+      });
+
+      document.querySelectorAll('.custom-qa-item input').forEach(input => {
+        input.addEventListener('input', () => {
+          const currentQA = getCurrentQA();
+          const newState = { ...state, customQA: currentQA };
+          saveState(newState);
+        });
+      });
+
+      document.getElementById('btn-back').addEventListener('click', () => {
+        const currentQA = getCurrentQA();
+        const newState = { ...state, customQA: currentQA, view: 'survey-type', surveyType: null };
+        saveState(newState);
+        renderState(newState);
+      });
+
+      document.getElementById('btn-submit').addEventListener('click', () => {
+        const currentQA = getCurrentQA();
+        const updatedState = { ...state, customQA: currentQA };
+        saveState(updatedState);
+        submitSurvey(updatedState);
+      });
+    }
+
+    // ============================================
+    // SURVEY SUMMARY
+    // ============================================
+    function buildQAPairs(state) {
+      if (state.surveyType === 'custom') {
+        return state.customQA
+          .filter(qa => qa.question && qa.answer)
+          .map(qa => ({ question: qa.question, answers: [qa.answer] }));
+      }
+
+      const pairs = [];
+      const survey = state.surveyType === 'health' ? HEALTH_GOALS_SURVEY : MEDICAL_SURVEY;
+      const ss = state.surveyState;
+      const animal = ss.animalType?.toLowerCase();
+
+      if (ss.answers.animalType) {
+        pairs.push({ question: survey.animalType.question, answers: ss.answers.animalType });
+      }
+
+      if (state.surveyType === 'health') {
+        const baseQuestions = animal === 'cat' ? survey.catBase : survey.dogBase;
+        baseQuestions.forEach(q => {
+          if (ss.answers[q.id]) {
+            pairs.push({ question: q.question, answers: ss.answers[q.id] });
+          }
+        });
+
+        if (ss.answers.healthGoals) {
+          pairs.push({ question: survey.healthGoals.question, answers: ss.answers.healthGoals });
+
+          const followups = animal === 'cat' ? survey.catFollowups : survey.dogFollowups;
+          ss.answers.healthGoals.forEach(goal => {
+            const key = `followup_${goal}`;
+            if (ss.answers[key] && followups[goal]) {
+              pairs.push({ question: followups[goal].question, answers: ss.answers[key] });
+            }
+          });
+        }
+
+      } else if (state.surveyType === 'medical') {
+        if (ss.answers.weight) {
+          pairs.push({ question: survey.weight.question, answers: [ss.answers.weight + ' lbs'] });
+        }
+
+        const conditionQ = animal === 'cat' ? survey.catConditions : survey.dogConditions;
+        if (ss.answers.condition) {
+          pairs.push({ question: conditionQ.question, answers: ss.answers.condition });
+        }
+
+        const condition = ss.answers.condition?.[0];
+        const followups = animal === 'cat' ? survey.catFollowups : survey.dogFollowups;
+        const conditionFollowups = followups[condition] || [];
+        conditionFollowups.forEach(q => {
+          if (ss.answers[q.id]) {
+            pairs.push({ question: q.question, answers: ss.answers[q.id] });
+          }
+        });
+      }
+
+      return pairs;
+    }
+
+    function renderSurveySummary(state) {
+      const qaPairs = buildQAPairs(state);
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Survey Complete - Review Your Answers</div>
+          <div class="survey-summary">
+            <h4>Your Responses:</h4>
+            ${qaPairs.map(qa => `
+              <div class="qa-pair">
+                <strong>Q:</strong> ${qa.question}<br>
+                <strong>A:</strong> ${qa.answers.join(', ')}
+              </div>
+            `).join('')}
+          </div>
+
+          ${renderConfigSection()}
+
+          <div class="survey-nav">
+            <button class="btn-back" id="btn-back">Back</button>
+            <button class="btn-next" id="btn-submit">Get Recommendations</button>
+          </div>
+        </div>
+      `;
+
+      bindConfigEvents();
+
+      document.getElementById('btn-back').addEventListener('click', () => {
+        const newState = {
+          ...state,
+          view: 'survey-question',
+          surveyState: { ...state.surveyState, step: state.surveyState.step - 1 }
+        };
+        saveState(newState);
+        renderState(newState);
+      });
+
+      document.getElementById('btn-submit').addEventListener('click', () => {
+        submitSurvey(state);
+      });
+    }
+
+    // ============================================
+    // SUBMIT SURVEY & RESULTS
+    // ============================================
+    async function submitSurvey(state) {
+      const qaPairs = buildQAPairs(state);
+      const surveyText = qaPairs.map(qa => `Q: ${qa.question}\nA: ${qa.answers.join(', ')}`).join('\n\n');
+      const productsList = DATA.products.map(p => `- ${p}`).join('\n');
+      const promptText = buildPromptText(false);  // No flowchart for P1/P2
+      const numRecs = globalConfig.numRecommendations;
+
+      // Match Python prompts exactly
+      if (state.prototype === 1) {
+        // P1: Single user message, no system prompt (matches prototype1_simple.py)
+        const messageContent = `You are a pet nutrition expert. Based on the pet owner's survey responses,
+recommend the ${numRecs} most suitable food(s) from the available product list.
+Use your knowledge of pet nutrition to match their needs with the right products.
+
+Available Products:
+${productsList}
+
+Pet Owner Survey:
+${surveyText}
+
+Please recommend the top ${numRecs} food(s) from the list above with detailed pros for each.
+
+${promptText}`;
+
+        const newState = {
+          ...state,
+          view: 'results',
+          usedConfig: { ...globalConfig },
+          langchainMessages: [new HumanMessage(messageContent)],
+          messageLog: [logMessage('user', messageContent)],
+          apiStatus: 'loading'
+        };
+        saveState(newState);
+        renderState(newState);
+        await runP1(newState);
+
+      } else {
+        // P2: System + user message with tool (matches prototype2_rag.py)
+        const systemPrompt = `You are a pet nutrition expert. Use your tools to research and provide ${numRecs} food recommendation(s).
+
+INSTRUCTIONS:
+- USE NO MORE THAN 5 TOOL CALLS. THE PROGRAM WILL EXIT IF YOU USE MORE THAN 5 TOOL CALLS.
+- Each recommendation's pros must be directly relevant to the pet owner's specific survey responses
+- Focus on how each recommended food addresses their stated needs, preferences, and concerns
+- You can use get_page_content(page_number, document_name) to get full content of specific pages from specific documents
+
+${promptText}`;
+
+        const userMessage = `AVAILABLE PRODUCTS:
+${productsList}
+
+PAGE SUMMARIES:
+${DATA.pageSummaries}
+
+Pet Owner Survey:
+${surveyText}
+
+Based on this pet owner's survey responses, research and provide ${numRecs} structured food recommendation(s).`;
+
+        const newState = {
+          ...state,
+          view: 'results',
+          usedConfig: { ...globalConfig },
+          langchainMessages: [new SystemMessage(systemPrompt), new HumanMessage(userMessage)],
+          messageLog: [
+            logMessage('system', systemPrompt),
+            logMessage('user', userMessage)
+          ],
+          apiStatus: 'loading'
+        };
+        saveState(newState);
+        renderState(newState);
+        await runP2(newState);
+      }
+    }
+
+    function renderResults(state) {
+      const qaPairs = buildQAPairs(state);
+
+      let resultsHtml = '';
+      if (isStaleLoading(state)) {
+        resultsHtml = `
+          <div class="message system">Request was interrupted</div>
+          <div class="message assistant">
+            <button class="btn-retry" onclick="retryApiCall(window.getHistoryState(${historyIndex}))">Retry</button>
+          </div>
+        `;
+      } else if (state.apiStatus === 'loading') {
+        resultsHtml = `
+          <div class="message system">Getting recommendations...</div>
+          <div class="message assistant">
+            <div class="typing"><span></span><span></span><span></span></div>
+          </div>
+        `;
+      } else if (state.apiStatus === 'error') {
+        resultsHtml = `<div class="message error">${state.apiError}</div>`;
+      } else if (state.recommendations) {
+        resultsHtml = `<div class="message assistant">
+          ${state.recommendations.map((rec, i) =>
+            `<div class="recommendation"><h4>${i + 1}. ${rec.food_name}</h4><ul>${rec.pros_list.map(p => `<li>${p}</li>`).join('')}</ul></div>`
+          ).join('')}
+        </div>`;
+      } else if (state.rawResponse) {
+        resultsHtml = `<div class="message assistant">${state.rawResponse}</div>`;
+      } else if (state.apiStatus === 'done') {
+        resultsHtml = `<div class="message system">No response received</div>`;
+      }
+
+      // Store config used for this request (for display)
+      const usedConfig = state.usedConfig || globalConfig;
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-summary">
+            <h4>Survey Responses:</h4>
+            ${qaPairs.map(qa => `
+              <div class="qa-pair">
+                <strong>Q:</strong> ${qa.question}<br>
+                <strong>A:</strong> ${qa.answers.join(', ')}
+              </div>
+            `).join('')}
+          </div>
+          <div class="survey-summary" style="margin-top: 12px;">
+            <h4>Config:</h4>
+            <div class="qa-pair"><strong>Company:</strong> ${usedConfig.company}</div>
+            <div class="qa-pair"><strong>Recommendations:</strong> ${usedConfig.numRecommendations}</div>
+            <div class="qa-pair" style="white-space: pre-wrap; font-family: monospace; font-size: 12px;"><strong>Instructions:</strong><br>${usedConfig.customInstructions}</div>
+          </div>
+        </div>
+        <div class="chat-container">
+          <div class="messages" id="messages">${resultsHtml}</div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // PROTOTYPE 3
+    // ============================================
+    function startP3() {
+      const state = {
+        view: 'p3-config',
+        prototype: 3,
+        extraPrompt: PROMPT_TEXT,
+      };
+      pushNewState(state);
+      renderState(state);
+    }
+
+    function renderP3Config(state) {
+      document.getElementById('main-content').innerHTML = `
+        <div class="survey-container">
+          <div class="survey-header">Prototype 3 - Configure AI Consultation</div>
+          <div class="survey-question">
+            <p>The AI will ask you questions interactively to understand your pet's needs, then provide personalized recommendations.</p>
+          </div>
+
+          ${renderConfigSection()}
+
+          <div class="config-section">
+            <div class="config-row" style="flex-direction: column; align-items: stretch;">
+              <label>Flowchart Instructions (P3 only, optional):</label>
+              <textarea id="config-flowchart" rows="8">${globalConfig.flowchartInstructions}</textarea>
+            </div>
+          </div>
+
+          <div class="survey-nav">
+            <button id="btn-start-chat" class="btn-next">Start Chat</button>
+          </div>
+        </div>
+      `;
+
+      bindConfigEvents();
+
+      document.getElementById('btn-start-chat').addEventListener('click', () => {
+        launchP3Chat(state);
+      });
+    }
+
+    function launchP3Chat(state) {
+      const productsList = DATA.products.map(p => `- ${p}`).join('\n');
+      const promptText = buildPromptText(true);  // Include flowchart for P3
+      const numRecs = globalConfig.numRecommendations;
+
+      // Match prototype3_interactive.py exactly
+      const systemPrompt = `You are a pet nutrition expert. Use your tools to research and provide ${numRecs} food recommendation(s).
+
+INSTRUCTIONS:
+- You can request up to 10 pages.
+- Ask up to 8 questions to the user, but no more. Don't be annoying.
+- Use ask_user_question to gather information about the pet owner's needs, preferences, and concerns
+- Each recommendation's pros must be directly relevant to the user's responses
+- You can use get_page_content(page_number, document_name) to get full content of specific pages from specific documents
+
+${promptText}`;
+
+      const userMessage = `AVAILABLE PRODUCTS:
+${productsList}
+
+PAGE SUMMARIES:
+${DATA.pageSummaries}
+
+Please help me find the right food for my pet. Start by asking questions to understand my pet's needs.`;
+
+      const newState = {
+        ...state,
+        view: 'p3-chat',
+        usedConfig: { ...globalConfig },
+        langchainMessages: [new SystemMessage(systemPrompt), new HumanMessage(userMessage)],
+        messageLog: [
+          logMessage('system', systemPrompt),
+          logMessage('user', userMessage)
+        ],
+        chatMessages: [],
+        pendingToolCall: null,
+        apiStatus: 'loading'
+      };
+
+      pushNewState(newState);
+      renderState(newState);
+      runP3(newState);
+    }
+
+    function renderP3Chat(state) {
+      let messagesHtml = '<div class="message system">Prototype 3 - Interactive AI Consultation</div>';
+
+      for (const msg of (state.chatMessages || [])) {
+        if (msg.type === 'assistant') {
+          messagesHtml += `<div class="message assistant">${msg.content}`;
+          if (msg.options?.length > 0) {
+            messagesHtml += `<div class="options-grid" style="margin-top: 12px;">
+              ${msg.options.map(opt => `<button class="option-btn" data-option="${opt}">${opt}</button>`).join('')}
+            </div>`;
+          }
+          messagesHtml += '</div>';
+        } else if (msg.type === 'user') {
+          messagesHtml += `<div class="message user">${msg.content}</div>`;
+        } else if (msg.type === 'recommendations') {
+          messagesHtml += `<div class="message assistant">
+            ${msg.recommendations.map((rec, i) =>
+              `<div class="recommendation"><h4>${i + 1}. ${rec.food_name}</h4><ul>${rec.pros_list.map(p => `<li>${p}</li>`).join('')}</ul></div>`
+            ).join('')}
+          </div>`;
+        }
+      }
+
+      if (isStaleLoading(state)) {
+        messagesHtml += `<div class="message system">Request was interrupted</div>
+          <div class="message assistant"><button class="btn-retry" onclick="retryApiCall(window.getHistoryState(${historyIndex}))">Retry</button></div>`;
+      } else if (state.apiStatus === 'loading') {
+        messagesHtml += `<div class="message assistant"><div class="typing"><span></span><span></span><span></span></div></div>`;
+      } else if (state.apiStatus === 'error') {
+        messagesHtml += `<div class="message error">${state.apiError}</div>`;
+      }
+
+      const showInput = state.pendingToolCalls?.length > 0 && state.apiStatus !== 'loading' && !isStaleLoading(state);
+
+      document.getElementById('main-content').innerHTML = `
+        <div class="chat-container">
+          <div class="messages" id="messages">${messagesHtml}</div>
+          <div class="input-row" id="input-row" style="display: ${showInput ? 'flex' : 'none'};">
+            <input type="text" id="user-input" placeholder="Type your response...">
+            <button id="send-btn">Send</button>
+          </div>
+        </div>
+      `;
+
+      // Bind option buttons
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('user-input').value = btn.dataset.option;
+          sendP3Message(state);
+        });
+      });
+
+      document.getElementById('send-btn')?.addEventListener('click', () => sendP3Message(state));
+      document.getElementById('user-input')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendP3Message(state);
+      });
+
+      // Scroll to bottom
+      const messagesEl = document.getElementById('messages');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Focus input
+      if (showInput) {
+        document.getElementById('user-input')?.focus();
+      }
+    }
+
+    function sendP3Message(state) {
+      const input = document.getElementById('user-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newChatMessages = [...(state.chatMessages || []), { type: 'user', content: text }];
+      const newMessageLog = [...(state.messageLog || []), logMessage('user', text)];
+
+      // Add tool response to LangChain messages
+      const newMessages = [...state.langchainMessages];
+      if (state.pendingToolCall) {
+        newMessages.push(new ToolMessage({
+          tool_call_id: state.pendingToolCall.id,
+          content: text,
+        }));
+      }
+
+      const newState = {
+        ...state,
+        langchainMessages: newMessages,
+        messageLog: newMessageLog,
+        chatMessages: newChatMessages,
+        pendingToolCall: null,
+        apiStatus: 'loading'
+      };
+
+      saveState(newState);
+      renderState(newState);
+      runP3(newState);
+    }
+
+    // ============================================
+    // LANGCHAIN API - TOOLS
+    // ============================================
+    const getPageContentTool = tool(
+      async ({ page_number, document_name }) => {
+        const page = DATA.pages.find(
+          p => p.page_number === page_number && p.document === document_name
+        );
+        if (page) {
+          return `Page ${page_number} (from ${document_name}) content: ${page.contents}`;
+        }
+        return `Page ${page_number} from ${document_name} not found`;
+      },
+      {
+        name: 'get_page_content',
+        description: 'Get the full content of a specific page by page number from a specific document.',
+        schema: z.object({
+          page_number: z.number().describe('The page number to retrieve'),
+          document_name: z.string().describe('The document name (e.g., "Hills.pdf")'),
+        }),
+      }
+    );
+
+    // Note: ask_user_question is handled specially - we don't actually invoke it,
+    // we just display the question to the user and wait for their response
+
+    // ============================================
+    // LANGCHAIN API - P1 (Simple, no tools, structured output)
+    // ============================================
+    async function runP1(state) {
+      try {
+        const baseModel = new ChatOpenAI({
+          modelName: MODEL,
+          openAIApiKey: OPENROUTER_API_KEY,
+          configuration: { baseURL: BASE_URL },
+          temperature: 0.7,
+        });
+
+        // First get the raw response so we can log it
+        const rawResponse = await baseModel.invoke(state.langchainMessages);
+
+        // Log the response
+        const messageLog = [...(state.messageLog || [])];
+        messageLog.push(logMessage('assistant', rawResponse.content));
+
+        // Parse with structured output
+        const structuredModel = baseModel.withStructuredOutput(getRecommendationSchema());
+        const result = await structuredModel.invoke(state.langchainMessages);
+
+        const newState = {
+          ...state,
+          messageLog,
+          recommendations: result.recommendations,
+          apiStatus: 'done'
+        };
+        saveState(newState);
+        renderState(newState);
+
+      } catch (err) {
+        const newState = { ...state, apiStatus: 'error', apiError: err.message };
+        saveState(newState);
+        renderState(newState);
+      }
+    }
+
+    // ============================================
+    // LANGCHAIN API - P2 (RAG with get_page_content tool, structured output)
+    // ============================================
+    async function runP2(state) {
+      try {
+        const baseModel = new ChatOpenAI({
+          modelName: MODEL,
+          openAIApiKey: OPENROUTER_API_KEY,
+          configuration: { baseURL: BASE_URL },
+          temperature: 0.7,
+        });
+
+        const toolModel = baseModel.bindTools([getPageContentTool]);
+        const structuredModel = baseModel.withStructuredOutput(getRecommendationSchema());
+
+        let messages = [...state.langchainMessages];
+        let messageLog = [...(state.messageLog || [])];
+        let toolCalls = 0;
+        const maxToolCalls = 5;
+
+        while (toolCalls < maxToolCalls) {
+          const response = await toolModel.invoke(messages);
+          messages.push(response);
+
+          // Log assistant response
+          messageLog.push(logMessage('assistant', response.content || '(thinking...)', {
+            toolCalls: response.tool_calls?.map(tc => ({ name: tc.name, args: tc.args }))
+          }));
+
+          if (!response.tool_calls || response.tool_calls.length === 0) {
+            // No more tools - get structured final response
+            const result = await structuredModel.invoke(messages);
+            messageLog.push(logMessage('result', JSON.stringify(result, null, 2)));
+            const newState = {
+              ...state,
+              messageLog,
+              recommendations: result.recommendations,
+              apiStatus: 'done'
+            };
+            saveState(newState);
+            renderState(newState);
+            return;
+          }
+
+          // Handle tool calls
+          for (const toolCall of response.tool_calls) {
+            const result = await getPageContentTool.invoke(toolCall.args);
+            messages.push(new ToolMessage({
+              tool_call_id: toolCall.id,
+              content: result,
+            }));
+            messageLog.push(logMessage('tool', result.substring(0, 500) + (result.length > 500 ? '...' : ''), {
+              toolName: toolCall.name,
+              args: toolCall.args
+            }));
+            toolCalls++;
+          }
+        }
+
+        // Max tools reached - get structured final response
+        const result = await structuredModel.invoke(messages);
+        messageLog.push(logMessage('result', JSON.stringify(result, null, 2)));
+        const newState = {
+          ...state,
+          messageLog,
+          recommendations: result.recommendations,
+          apiStatus: 'done'
+        };
+        saveState(newState);
+        renderState(newState);
+
+      } catch (err) {
+        const newState = { ...state, apiStatus: 'error', apiError: err.message };
+        saveState(newState);
+        renderState(newState);
+      }
+    }
+
+    // ============================================
+    // LANGCHAIN API - P3 (Interactive with ask_user_question)
+    // ============================================
+    const askUserQuestionTool = tool(
+      async ({ question, options }) => {
+        // This is a placeholder - actual invocation is handled by UI
+        return "User response pending";
+      },
+      {
+        name: 'ask_user_question',
+        description: 'Ask the user a multiple choice question and return their response.',
+        schema: z.object({
+          question: z.string().describe('The question to ask the user'),
+          options: z.array(z.string()).describe('List of multiple choice options'),
+        }),
+      }
+    );
+
+    async function runP3(state) {
+      try {
+        const baseModel = new ChatOpenAI({
+          modelName: MODEL,
+          openAIApiKey: OPENROUTER_API_KEY,
+          configuration: { baseURL: BASE_URL },
+          temperature: 0.7,
+        });
+
+        const toolModel = baseModel.bindTools([getPageContentTool, askUserQuestionTool]);
+        const structuredModel = baseModel.withStructuredOutput(getRecommendationSchema());
+
+        let messages = [...state.langchainMessages];
+        let messageLog = [...(state.messageLog || [])];
+
+        const response = await toolModel.invoke(messages);
+        messages.push(response);
+
+        // Log assistant response
+        messageLog.push(logMessage('assistant', response.content || '(using tools...)', {
+          toolCalls: response.tool_calls?.map(tc => ({ name: tc.name, args: tc.args }))
+        }));
+
+        if (!response.tool_calls || response.tool_calls.length === 0) {
+          // No tool calls - get structured final response
+          const result = await structuredModel.invoke(messages);
+          messageLog.push(logMessage('result', JSON.stringify(result, null, 2)));
+          const newChatMessages = [...(state.chatMessages || []), {
+            type: 'recommendations',
+            recommendations: result.recommendations
+          }];
+          const newState = {
+            ...state,
+            messageLog,
+            chatMessages: newChatMessages,
+            apiStatus: 'done'
+          };
+          saveState(newState);
+          renderState(newState);
+          return;
+        }
+
+        // Handle tool calls
+        for (const toolCall of response.tool_calls) {
+          if (toolCall.name === 'ask_user_question') {
+            // Display question to user and wait for response
+            messageLog.push(logMessage('tool', `Question: ${toolCall.args.question}`, {
+              toolName: 'ask_user_question',
+              options: toolCall.args.options
+            }));
+            const newChatMessages = [...(state.chatMessages || []), {
+              type: 'assistant',
+              content: toolCall.args.question,
+              options: toolCall.args.options
+            }];
+
+            const newState = {
+              ...state,
+              langchainMessages: messages,
+              messageLog,
+              chatMessages: newChatMessages,
+              pendingToolCall: toolCall,
+              apiStatus: 'ready'
+            };
+            saveState(newState);
+            renderState(newState);
+            return;
+
+          } else if (toolCall.name === 'get_page_content') {
+            const result = await getPageContentTool.invoke(toolCall.args);
+            messages.push(new ToolMessage({
+              tool_call_id: toolCall.id,
+              content: result,
+            }));
+            messageLog.push(logMessage('tool', result.substring(0, 500) + (result.length > 500 ? '...' : ''), {
+              toolName: 'get_page_content',
+              args: toolCall.args
+            }));
+          }
+        }
+
+        // Continue with updated messages (handled get_page_content, need to call again)
+        const newState = { ...state, langchainMessages: messages, messageLog };
+        saveState(newState);
+        await runP3(newState);
+
+      } catch (err) {
+        const newState = { ...state, apiStatus: 'error', apiError: err.message };
+        saveState(newState);
+        renderState(newState);
+      }
+    }
+
+    // ============================================
+    // LANGCHAIN RESPONSE HANDLER
+    // ============================================
+    function handleLangchainResponse(state, response, messages = null, isP3 = false) {
+      const content = response.content;
+
+      try {
+        const match = content.match(/\{[\s\S]*"recommendations"[\s\S]*\}/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (parsed.recommendations) {
+            if (isP3) {
+              const newChatMessages = [...(state.chatMessages || []), {
+                type: 'recommendations',
+                recommendations: parsed.recommendations
+              }];
+              const newState = {
+                ...state,
+                langchainMessages: messages || state.langchainMessages,
+                chatMessages: newChatMessages,
+                apiStatus: 'done'
+              };
+              saveState(newState);
+              renderState(newState);
+            } else {
+              const newState = {
+                ...state,
+                langchainMessages: messages || state.langchainMessages,
+                recommendations: parsed.recommendations,
+                apiStatus: 'done'
+              };
+              saveState(newState);
+              renderState(newState);
+            }
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Fallback: show raw content
+      if (isP3) {
+        const newChatMessages = [...(state.chatMessages || []), {
+          type: 'assistant',
+          content
+        }];
+        const newState = {
+          ...state,
+          langchainMessages: messages || state.langchainMessages,
+          chatMessages: newChatMessages,
+          apiStatus: 'done'
+        };
+        saveState(newState);
+        renderState(newState);
+      } else {
+        const newState = {
+          ...state,
+          langchainMessages: messages || state.langchainMessages,
+          rawResponse: content,
+          apiStatus: 'done'
+        };
+        saveState(newState);
+        renderState(newState);
+      }
+    }
+
+    // ============================================
+    // INSPECTOR
+    // ============================================
+    function toggleInspector() {
+      inspectorVisible = !inspectorVisible;
+      document.getElementById('inspector-panel').classList.toggle('visible', inspectorVisible);
+      document.getElementById('toggle-inspector').classList.toggle('active', inspectorVisible);
+      if (inspectorVisible) updateInspector();
+    }
+
+    function setInspectorView(view) {
+      inspectorView = view;
+      document.querySelectorAll('.inspector-header button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+      updateInspector();
+    }
+
+    // Track expanded state for inspector messages
+    let inspectorExpandedIds = new Set();
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateInspector() {
+      if (!inspectorVisible) return;
+
+      const state = currentState();
+      const el = document.getElementById('inspector');
+
+      if (!state) {
+        el.textContent = '(no state)';
+        return;
+      }
+
+      if (inspectorView === 'messages') {
+        let html = '';
+        const messageLog = state.messageLog || [];
+
+        for (let i = 0; i < messageLog.length; i++) {
+          const msg = messageLog[i];
+          const msgId = `msg-${i}`;
+          const typeClass = msg.type === 'user' ? 'user' :
+                           msg.type === 'system' ? 'system' :
+                           msg.type === 'assistant' ? 'assistant' :
+                           msg.type === 'tool' ? 'tool-result' :
+                           msg.type === 'result' ? 'assistant' : 'system';
+
+          const label = msg.type.toUpperCase();
+          const content = msg.content || '';
+          const isLong = content.length > 500;
+          const isExpanded = inspectorExpandedIds.has(msgId);
+
+          const displayContent = (isLong && !isExpanded)
+            ? escapeHtml(content.substring(0, 500))
+            : escapeHtml(content);
+
+          html += `<span class="${typeClass}">[${label}]</span>`;
+
+          if (isLong) {
+            html += `<button class="expand-btn" data-msg-id="${msgId}">${isExpanded ? 'show less' : '...'}</button>`;
+          }
+
+          html += `\n${displayContent}\n`;
+
+          // Show tool calls if present
+          if (msg.toolCalls?.length > 0) {
+            html += `<span class="tool-call">[TOOL CALLS]</span>\n${escapeHtml(JSON.stringify(msg.toolCalls, null, 2))}\n`;
+          }
+
+          // Show tool metadata if present
+          if (msg.toolName) {
+            html += `<span class="tool-call">(${msg.toolName})</span>\n`;
+          }
+
+          html += '\n';
+        }
+
+        el.innerHTML = html || '(no messages)';
+
+        // Bind expand/collapse buttons
+        el.querySelectorAll('.expand-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const msgId = btn.dataset.msgId;
+            if (inspectorExpandedIds.has(msgId)) {
+              inspectorExpandedIds.delete(msgId);
+            } else {
+              inspectorExpandedIds.add(msgId);
+            }
+            updateInspector();
+          });
+        });
+
+      } else if (inspectorView === 'survey') {
+        el.textContent = JSON.stringify({
+          surveyType: state.surveyType,
+          surveyState: state.surveyState,
+          customQA: state.customQA,
+          globalConfig: globalConfig,
+          usedConfig: state.usedConfig
+        }, null, 2);
+      } else if (inspectorView === 'state') {
+        el.textContent = JSON.stringify(state, null, 2);
+      }
+    }
+
+    // ============================================
+    // START
+    // ============================================
+    // Expose for inline onclick handlers
+    window.retryApiCall = retryApiCall;
+    window.getHistoryState = (idx) => history[idx];
+
+    init();
+  </script>
+</body>
+</html>
